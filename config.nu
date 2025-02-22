@@ -26,10 +26,10 @@ def is-wsl [] {
     $nu.os-info.name == "linux" and ('/proc/sys/fs/binfmt_misc/WSLInterop' | path exists)
 }
 
-if (is-wsl) {
+if (is-wsl)  {
     $env.WSL_ROUTER_IP = (ip route | grep default | awk '{print $3}')
     $env.GIT_SSH = "/mnt/c/Windows/System32/OpenSSH/ssh.exe"
-} else {
+} else if  $nu.os-info.name == "linux" {
     $env.RIME_LS_SYNC_DIR = $env.HOME + "/rclone/rime_ls"
 }
 
@@ -115,6 +115,6 @@ def nvims [] {
     nvim
 }
 
-source ~/.config/nushell/modules/fnm.nu
+source ($nu.default-config-dir + "/modules/fnm.nu")
 source ~/.zoxide.nu
 source ~/encrypt.nu
