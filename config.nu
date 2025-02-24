@@ -110,16 +110,15 @@ def nvims [] {
   nvim
 }
 
-mkdir ($nu.data-dir | path join "vendor/autoload")
-starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 
-const CUSTOM_COMPLETIONS = [cargo git npm]
+mkdir ($nu.data-dir | path join vendor autoload)
+ls ($nu.data-dir | path join vendor autoload) | each { |it| rm $it.name }
+const CUSTOM_COMPLETIONS = [cargo git npm scoop rustup curl gh rg ssh]
 const CUSTOM_COMPLETIONS_DIR = ("~/projects/nu_scripts/custom-completions/" | path expand)
-use $"($CUSTOM_COMPLETIONS_DIR)/git/git-completions.nu" *
-use $"($CUSTOM_COMPLETIONS_DIR)/cargo/cargo-completions.nu" *
-use $"($CUSTOM_COMPLETIONS_DIR)/scoop/scoop-completions.nu" *
-use $"($CUSTOM_COMPLETIONS_DIR)/docker/docker-completions.nu" *
-use $"($CUSTOM_COMPLETIONS_DIR)/rye/rye-completions.nu" *
+for completion in $CUSTOM_COMPLETIONS {
+  open ($CUSTOM_COMPLETIONS_DIR | path join $completion $"($completion)-completions.nu")  | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
+}
+starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu)
 
 source ./modules/fnm.nu
 source ./modules/zoxide.nu

@@ -9,6 +9,7 @@ if ($nu.os-info.name != "windows") {
   $env.PROJECT_DIRS = ($env.HOME | path join projects)
 } else {
   $env.PROJECT_DIRS = "D:\\ziboh\\Documents\\projects"
+  $env.HOME = $env.HOMEDRIVE + $env.HOMEPATH
 }
 
 $env.TOPIARY_LANGUAGE_DIR = ($env.HOME | path join .config topiary languages)
