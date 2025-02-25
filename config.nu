@@ -114,12 +114,11 @@ def nvims [] {
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each { |it| rm $it.name }
 const CUSTOM_COMPLETIONS = [cargo git npm scoop rustup curl gh rg ssh]
-const CUSTOM_COMPLETIONS_DIR = ("~/projects/nu_scripts/custom-completions/" | path expand)
 for completion in $CUSTOM_COMPLETIONS {
-  open ($CUSTOM_COMPLETIONS_DIR | path join $completion $"($completion)-completions.nu")  | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
+  open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu")  | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
 }
 starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu)
 
-source ./modules/fnm.nu
-source ./modules/zoxide.nu
+open ($env.PROJECT_DIRS | path join nu_scripts modules fnm fnm.nu) | save -f ($nu.data-dir | path join vendor autoload fnm.nu)
+zoxide init nushell | save -f ($nu.data-dir | path join vendor autoload zoxide.nu)
 source ~/encrypt.nu
