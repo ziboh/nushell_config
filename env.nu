@@ -2,11 +2,15 @@ if ($nu.os-info.name != "windows") and not ("ENV_LOADED" in $env) {
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/.cargo/bin"))
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/bin"))
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/.local/bin"))
+  $env.PATH = ($env.PATH | prepend ($env.HOME + "/.local/bin"))
+  $env.path ++= ["~/.yarn/bin"]
   $env.PATH = ($env.PATH | split row (char esep) | prepend "~/.rye/shims")
 }
 
 if ($nu.os-info.name != "windows") {
   $env.PROJECT_DIRS = ($env.HOME | path join projects)
+  $env.ProgramData = "/mnt/c/ProgramData"
+  $env.SCOOP = "/mnt/d/scoop"
 } else {
   $env.PROJECT_DIRS = "D:\\ziboh\\Documents\\projects"
   $env.HOME = $env.HOMEDRIVE + $env.HOMEPATH

@@ -7,8 +7,8 @@ def --env set-proxy [] {
 }
 
 def --env unset-proxy [] {
-  hide-env http_proxy
-  hide-env https_proxy
+  hide-env -i http_proxy
+  hide-env -i https_proxy
 }
 
 def is-running [cmd: string] {
@@ -110,15 +110,18 @@ def nvims [] {
   nvim
 }
 
-
 mkdir ($nu.data-dir | path join vendor autoload)
-ls ($nu.data-dir | path join vendor autoload) | each { |it| rm $it.name }
-const CUSTOM_COMPLETIONS = [cargo git npm scoop rustup curl gh rg ssh]
+ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
+const CUSTOM_COMPLETIONS = [cargo git npm scoop rustup curl gh rg ssh tar]
 for completion in $CUSTOM_COMPLETIONS {
-  open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu")  | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
+  open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu") | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
 }
-starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu)
 
+starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu)
+if (which tree-sitter | is-not-empty) and ($nu.default-config-dir | path join completions tree-sitter.nu | path exists) {
+  open ($nu.default-config-dir | path join completions tree-sitter.nu) | save -f ($nu.data-dir | path join vendor autoload tree-sitter.nu)
+}
+alias lg = lazygit
 open ($env.PROJECT_DIRS | path join nu_scripts modules fnm fnm.nu) | save -f ($nu.data-dir | path join vendor autoload fnm.nu)
 zoxide init nushell | save -f ($nu.data-dir | path join vendor autoload zoxide.nu)
 source ~/encrypt.nu
