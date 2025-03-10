@@ -112,8 +112,11 @@ def nvims [] {
 
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
-const CUSTOM_COMPLETIONS = [cargo git npm scoop rustup curl gh rg ssh tar]
-for completion in $CUSTOM_COMPLETIONS {
+mut custom_completions = [cargo git npm scoop rustup curl gh rg ssh rye]
+if ($nu.os-info.name != "windows") {
+  $custom_completions = $custom_completions | append tar
+}
+for completion in $custom_completions {
   open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu") | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
 }
 

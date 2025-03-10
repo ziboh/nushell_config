@@ -11,9 +11,11 @@ if ($nu.os-info.name != "windows") {
   $env.PROJECT_DIRS = ($env.HOME | path join projects)
   $env.ProgramData = "/mnt/c/ProgramData"
   $env.SCOOP = "/mnt/d/scoop"
+  $env.GP_DIR = ($env.HOME | path join .local share gp)
 } else {
   $env.PROJECT_DIRS = "D:\\ziboh\\Documents\\projects"
   $env.HOME = $env.HOMEDRIVE + $env.HOMEPATH
+  $env.GP_DIR = ($env.HOME | path join AppData Local gp)
 }
 
 $env.TOPIARY_LANGUAGE_DIR = ($env.HOME | path join .config topiary languages)
