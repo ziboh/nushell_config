@@ -34,17 +34,23 @@ if (is-wsl) {
 }
 
 def --env clash [] {
-  if not (is-wsl) {
-    return
-  }
-  if (is-running clash-verge) {
-    $env.http_proxy = ("http://" + $env.WSL_ROUTER_IP + ":7890")
-    $env.https_proxy = ("http://" + $env.WSL_ROUTER_IP + ":7890")
-  } else {
-    unset-proxy
+  if (is-wsl) {
+    if (is-running clash-verge) {
+      $env.http_proxy = ("http://" + $env.WSL_ROUTER_IP + ":7890")
+      $env.https_proxy = ("http://" + $env.WSL_ROUTER_IP + ":7890")
+    } else {
+      unset-proxy
+    }
+  } else if $nu.os-info.name == "windows" {
+    if (is-running clash-verge) {
+      set-proxy
+    } else {
+      unset-proxy
+    }
   }
 }
 
+clash
 $env.NVIM_DEFAULT_CONFIG = ""
 
 # 检查并安装配置的函数
@@ -112,7 +118,7 @@ def nvims [] {
 
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
-mut custom_completions = [cargo git npm scoop rustup curl gh rg ssh rye]
+mut custom_completions = [cargo git npm scoop rustup curl gh rg ssh rye adb]
 if ($nu.os-info.name != "windows") {
   $custom_completions = $custom_completions | append tar
 }

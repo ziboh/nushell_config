@@ -13,9 +13,13 @@ if ($nu.os-info.name != "windows") {
   $env.SCOOP = "/mnt/d/scoop"
   $env.GP_DIR = ($env.HOME | path join .local share gp)
 } else {
-  $env.PROJECT_DIRS = "D:\\ziboh\\Documents\\projects"
+  $env.PROJECT_DIRS = "D:\\zibo\\Documents\\projects"
   $env.HOME = $env.HOMEDRIVE + $env.HOMEPATH
   $env.GP_DIR = ($env.HOME | path join AppData Local gp)
+  let bash_path = which bash | get path 
+  if ($bash_path | is-not-empty) {
+    $env.CLAUDE_CODE_GIT_BASH_PATH = $bash_path | get 0
+  }
 }
 
 $env.TOPIARY_LANGUAGE_DIR = ($env.HOME | path join .config topiary languages)
