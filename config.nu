@@ -159,15 +159,17 @@ alias v = nvim
 alias nano = nvim
 alias ff = fastfetch
 
-$env.config.keybindings ++= [
-  {
-    name: toggle_sudo
-    modifier: alt
-    keycode: char_/
-    mode: [emacs vi_insert vi_normal]
-    event: {
-      send: executehostcommand
-      cmd: "let cmd = (commandline); commandline edit (if $cmd starts-with sudo { $cmd | str replace -r '^sudo ' '' } else { 'sudo ' ++ $cmd });"
+if (is-linux) {
+  $env.config.keybindings ++= [
+    {
+      name: toggle_sudo
+      modifier: alt
+      keycode: char_/
+      mode: [emacs vi_insert vi_normal]
+      event: {
+        send: executehostcommand
+        cmd: "let cmd = (commandline); commandline edit (if $cmd starts-with sudo { $cmd | str replace -r '^sudo ' '' } else { 'sudo ' ++ $cmd });"
+      }
     }
-  }
-]
+  ]
+}
