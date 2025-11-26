@@ -11,8 +11,20 @@ def --env unset-proxy [] {
   hide-env -i https_proxy
 }
 
-def is-running [cmd: string] {
-  let command_str =  "ps | where name =~ '" + $cmd + "'"
+def is-wsl [] {
+  $nu.os-info.name == "linux" and ('/proc/sys/fs/binfmt_misc/WSLInterop' | path exists)
+}
+
+def is-win [] {
+  $nu.os-info.name == "windows"
+}
+
+def is-linux [] {
+  $nu.os-info.name == "linux"
+}
+
+def is-running-wsl [cmd: string] {
+  let command_str = "ps | where name =~ '" + $cmd + "'"
   let processes = (nu.exe -c $command_str)
   let count = ($processes | lines | length)
   if ($count > 3) {
@@ -22,8 +34,13 @@ def is-running [cmd: string] {
   }
 }
 
-def is-wsl [] {
-  $nu.os-info.name == "linux" and ('/proc/sys/fs/binfmt_misc/WSLInterop' | path exists)
+def is-running [cmd: string] {
+  let count = (ps | where name =~ $cmd | length)
+  if ($count > 0) {
+    true
+  } else {
+    false
+  }
 }
 
 if (is-wsl) {
@@ -35,13 +52,13 @@ if (is-wsl) {
 
 def --env clash [] {
   if (is-wsl) {
-    if (is-running clash-verge) {
+    if (is-running-wsl clash-verge) {
       $env.http_proxy = ("http://" + $env.WSL_ROUTER_IP + ":7890")
       $env.https_proxy = ("http://" + $env.WSL_ROUTER_IP + ":7890")
     } else {
       unset-proxy
     }
-  } else if $nu.os-info.name == "windows" {
+  } else if (is-win) or (is-linux) {
     if (is-running clash-verge) {
       set-proxy
     } else {
@@ -118,7 +135,7 @@ def nvims [] {
 
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
-mut custom_completions = [cargo git npm scoop rustup curl gh rg ssh rye adb]
+mut custom_completions = [cargo git npm scoop rustup curl gh rg ssh rye adb docker]
 if ($nu.os-info.name != "windows") {
   $custom_completions = $custom_completions | append tar
 }
@@ -130,7 +147,27 @@ starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu
 if (which tree-sitter | is-not-empty) and ($nu.default-config-dir | path join completions tree-sitter.nu | path exists) {
   open ($nu.default-config-dir | path join completions tree-sitter.nu) | save -f ($nu.data-dir | path join vendor autoload tree-sitter.nu)
 }
-alias lg = lazygit
 open ($env.PROJECT_DIRS | path join nu_scripts modules fnm fnm.nu) | save -f ($nu.data-dir | path join vendor autoload fnm.nu)
 zoxide init nushell | save -f ($nu.data-dir | path join vendor autoload zoxide.nu)
 source ~/encrypt.nu
+
+# 命令别名
+alias lg = lazygit
+alias top = btm
+alias vim = nvim
+alias v = nvim
+alias nano = nvim
+alias ff = fastfetch
+
+$env.config.keybindings ++= [
+  {
+    name: toggle_sudo
+    modifier: alt
+    keycode: char_/
+    mode: [emacs vi_insert vi_normal]
+    event: {
+      send: executehostcommand
+      cmd: "let cmd = (commandline); commandline edit (if $cmd starts-with sudo { $cmd | str replace -r '^sudo ' '' } else { 'sudo ' ++ $cmd });"
+    }
+  }
+]
