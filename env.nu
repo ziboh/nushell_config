@@ -3,6 +3,8 @@ if ($nu.os-info.name != "windows") and not ("ENV_LOADED" in $env) {
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/bin"))
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/.local/bin"))
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/.local/bin"))
+  $env.PATH = ($env.PATH | prepend ($env.HOME + "/bin"))
+  $env.PATH = ($env.PATH | prepend ($env.HOME + "/.local/share/bob/nvim-bin"))
   $env.PATH ++= ["~/.yarn/bin"]
 }
 
