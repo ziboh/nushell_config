@@ -158,6 +158,7 @@ alias vim = nvim
 alias v = nvim
 alias nano = nvim
 alias ff = fastfetch
+alias yay = paru
 
 if (is-linux) {
   $env.config.keybindings ++= [
