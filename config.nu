@@ -97,10 +97,11 @@ def check_and_install_config [config_name: string configs: list<string>] {
   }
 }
 
-def nvims [] {
+def nvims [...args] {
   # 定义配置数组
   let configs = [
     "default"
+    "Mini|ziboh/nvim-mini"
     "LazyVim|LazyVim/starter"
     "AstroNvim|https://github.com/AstroNvim/template"
     "NormalNvim|NormalNvim/NormalNvim"
@@ -130,7 +131,7 @@ def nvims [] {
   }
 
   $env.NVIM_APPNAME = $config
-  nvim
+  nvim ...$args
 }
 
 mkdir ($nu.data-dir | path join vendor autoload)
@@ -160,6 +161,7 @@ alias nano = nvim
 alias ff = fastfetch
 alias yay = paru
 alias yadm = chezmoi
+alias ls = lsd
 
 if (is-linux) {
   $env.config.keybindings ++= [
