@@ -131,17 +131,18 @@ def nvims [...args] {
   }
 
   $env.NVIM_APPNAME = $config
-  nvim ...$args
+  ^nvim ...$args
 }
 
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
-mut custom_completions = [cargo git npm scoop rustup curl gh rg ssh rye adb docker]
+mut custom_completions = [scoop rustup adb]
 if ($nu.os-info.name != "windows") {
   $custom_completions = $custom_completions | append tar
 }
 for completion in $custom_completions {
   open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu") | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
+  # open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu") | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
 }
 
 starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu)
@@ -163,6 +164,28 @@ alias yay = paru
 alias yadm = chezmoi
 alias ls = lsd
 
+def "nu-complete nvim" [spans: list<string>] {  
+    carapace $spans.0 nushell ...$spans | from json  
+}  
+  
+@complete "nu-complete nvim"  
+def nvim [...rest: string] {
+  if 'NVIM' in $env {
+    # 将rest中的文件路径转换为绝对路径，选项不变
+    let absolute_rest = $rest | each { |arg|
+      if ($arg | str starts-with '-') {
+        $arg  # 保留选项
+      } else {
+        $arg | path expand  # 转换为绝对路径
+      }
+    }
+    ^nvim --server $env.NVIM --remote ...$absolute_rest
+  } else {
+    $env.NVIM_APPNAME = "Mini"
+    ^nvim ...$rest
+  }
+}
+
 if (is-linux) {
   $env.config.keybindings ++= [
     {
@@ -177,3 +200,5 @@ if (is-linux) {
     }
   ]
 }
+
+source $"($nu.cache-dir)/carapace.nu"

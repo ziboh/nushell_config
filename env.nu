@@ -28,3 +28,7 @@ $env.TOPIARY_LANGUAGE_DIR = ($env.HOME | path join .config topiary languages)
 $env.TOPIARY_CONFIG_FILE = ($env.HOME | path join .config topiary languages.ncl)
 $env.FZF_DEFAULT_OPTS = "--bind=tab:down --bind='shift-tab:up' --bind='ctrl-a:toggle-all' --cycle"
 $env.ENV_LOADED = true
+
+$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
+mkdir $"($nu.cache-dir)"
+carapace _carapace nushell | save --force $"($nu.cache-dir)/carapace.nu"
