@@ -15,7 +15,7 @@ if ($nu.os-info.name != "windows") {
   $env.SSH_AUTH_SOCK = "/run/user/1000/ssh-agent.socket"
   $env.GP_DIR = ($env.HOME | path join .local share gp)
 } else {
-  $env.PROJECT_DIRS = "D:\\zibo\\Documents\\projects"
+  $env.PROJECT_DIRS = 'C:\Users\zibo\Documents\projects'
   $env.HOME = $env.HOMEDRIVE + $env.HOMEPATH
   $env.GP_DIR = ($env.HOME | path join AppData Local gp)
   let bash_path = which bash | get path

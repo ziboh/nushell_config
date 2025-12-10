@@ -68,7 +68,6 @@ def --env clash [] {
 }
 
 clash
-$env.NVIM_DEFAULT_CONFIG = ""
 
 # 检查并安装配置的函数
 def check_and_install_config [config_name: string configs: list<string>] {
@@ -97,43 +96,6 @@ def check_and_install_config [config_name: string configs: list<string>] {
   }
 }
 
-def nvims [...args] {
-  # 定义配置数组
-  let configs = [
-    "default"
-    "Mini|ziboh/nvim-mini"
-    "LazyVim|LazyVim/starter"
-    "AstroNvim|https://github.com/AstroNvim/template"
-    "NormalNvim|NormalNvim/NormalNvim"
-  ]
-  # 提取配置名称用于fzf选择
-  let items = (
-    $configs | each {|it|
-      if ($it =~ '|') {
-        $it | split row "|" | get 0
-      } else {
-        $it
-      }
-    }
-  )
-
-  # 选择配置
-  mut config = (echo ($items | str join "\n") | fzf --prompt=" Neovim Config »" --height "50%" --layout=reverse --border --exit-0)
-  if ($config | is-empty) {
-    return
-  }
-
-  # 处理default配置
-  if ($config == "default") {
-    $config = ''
-  } else {
-    check_and_install_config $config $configs
-  }
-
-  $env.NVIM_APPNAME = $config
-  ^nvim ...$args
-}
-
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
 mut custom_completions = [scoop rustup adb]
@@ -142,7 +104,6 @@ if ($nu.os-info.name != "windows") {
 }
 for completion in $custom_completions {
   open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu") | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
-  # open ($env.PROJECT_DIRS | path join nu_scripts custom-completions $completion $"($completion)-completions.nu") | save -f ($nu.data-dir | path join vendor autoload $"($completion)-completions.nu")
 }
 
 starship init nu | save -f ($nu.data-dir | path join vendor autoload starship.nu)
@@ -164,27 +125,6 @@ alias yay = paru
 alias yadm = chezmoi
 alias ls = lsd
 
-def "nu-complete nvim" [spans: list<string>] {  
-    carapace $spans.0 nushell ...$spans | from json  
-}  
-  
-@complete "nu-complete nvim"  
-def nvim [...rest: string] {
-  if 'NVIM' in $env {
-    # 将rest中的文件路径转换为绝对路径，选项不变
-    let absolute_rest = $rest | each { |arg|
-      if ($arg | str starts-with '-') {
-        $arg  # 保留选项
-      } else {
-        $arg | path expand  # 转换为绝对路径
-      }
-    }
-    ^nvim --server $env.NVIM --remote ...$absolute_rest
-  } else {
-    $env.NVIM_APPNAME = "Mini"
-    ^nvim ...$rest
-  }
-}
 
 if (is-linux) {
   $env.config.keybindings ++= [
@@ -202,3 +142,4 @@ if (is-linux) {
 }
 
 source $"($nu.cache-dir)/carapace.nu"
+source nvim.nu
