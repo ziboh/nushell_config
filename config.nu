@@ -1,5 +1,7 @@
 $env.config.buffer_editor = "nvim"
 $env.config.show_banner = false
+$env.config.completions.algorithm = "fuzzy"
+$env.config.completions.quick = true
 
 def --env set-proxy [] {
   $env.http_proxy = "http://localhost:7890"
@@ -123,7 +125,7 @@ alias nano = nvim
 alias ff = fastfetch
 alias yay = paru
 alias yadm = chezmoi
-alias ls = lsd
+alias ll = lsd
 
 
 if (is-linux) {
@@ -140,6 +142,19 @@ if (is-linux) {
     }
   ]
 }
+
+def wtedit [] {  
+    if ($nu.os-info.name == "windows") {  
+        let wt_config = "~/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"  
+        chezmoi edit $wt_config; chezmoi apply $wt_config  
+    } else {  
+        print "This command is only available on Windows"  
+    }  
+}
+
+mkdir ($nu.data-dir | path join vendor completions)
+bob complete nushell | save -f ($nu.data-dir | path join "vendor/completions/bob.nu")
+source ($nu.data-dir | path join "vendor/completions/bob.nu")
 
 source $"($nu.cache-dir)/carapace.nu"
 source nvim.nu
