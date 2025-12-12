@@ -153,8 +153,7 @@ def wtedit [] {
 }
 
 mkdir ($nu.data-dir | path join vendor completions)
-bob complete nushell | save -f ($nu.data-dir | path join "vendor/completions/bob.nu")
-source ($nu.data-dir | path join "vendor/completions/bob.nu")
+bob complete nushell | save -f ($nu.data-dir | path join "vendor/autoload/bob.nu")
 
 source $"($nu.cache-dir)/carapace.nu"
 source nvim.nu
