@@ -28,7 +28,7 @@ def nvims [
   --remote: string          # Execute commands remotely on a server
   --server: string          # Connect to this Nvim server
   --startuptime: string     # Write startup timing messages to <file>
-  ...files                  # Files to open
+  ...files: path            # Files to open
 ] {
   # 定义配置数组
   let configs = [
@@ -123,7 +123,7 @@ def nvim [
   --remote: string          # Execute commands remotely on a server
   --server: string          # Connect to this Nvim server
   --startuptime: string     # Write startup timing messages to <file>
-  ...files                  # Files to open
+  ...files: path            # Files to open
 ] {
   mut args = []
   
