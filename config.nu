@@ -100,7 +100,7 @@ def check_and_install_config [config_name: string configs: list<string>] {
 
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
-mut custom_completions = [scoop rustup adb]
+mut custom_completions = [scoop rustup adb uv]
 if ($nu.os-info.name != "windows") {
   $custom_completions = $custom_completions | append tar
 }
@@ -127,7 +127,6 @@ alias yay = paru
 alias yadm = chezmoi
 alias ll = lsd
 
-
 if (is-linux) {
   $env.config.keybindings ++= [
     {
@@ -143,13 +142,13 @@ if (is-linux) {
   ]
 }
 
-def wtedit [] {  
-    if ($nu.os-info.name == "windows") {  
-        let wt_config = "~/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"  
-        chezmoi edit $wt_config; chezmoi apply $wt_config  
-    } else {  
-        print "This command is only available on Windows"  
-    }  
+def wtedit [] {
+  if ($nu.os-info.name == "windows") {
+    let wt_config = "~/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
+    chezmoi edit $wt_config; chezmoi apply $wt_config
+  } else {
+    print "This command is only available on Windows"
+  }
 }
 
 mkdir ($nu.data-dir | path join vendor completions)

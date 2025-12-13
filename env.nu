@@ -22,7 +22,7 @@ if ($nu.os-info.name != "windows") {
   if ($bash_path | is-not-empty) {
     $env.CLAUDE_CODE_GIT_BASH_PATH = $bash_path | get 0
   }
-  $env.PATH = ($env.PATH | prepend ('D:\scoop\apps\git\current\usr\bin'))
+  $env.PATH = ($env.PATH | append ('D:\scoop\apps\git\current\usr\bin'))
   $env.YAZI_CONFIG_HOME = "~/.config/yazi"
   $env.SCOOP = "d:/scoop"
 }
