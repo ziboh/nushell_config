@@ -1,7 +1,7 @@
 $env.config.buffer_editor = "nvim"
 $env.config.show_banner = false
-$env.config.completions.algorithm = "fuzzy"
 $env.config.completions.quick = true
+$env.config.completions.sort = "alphabetical"
 
 def --env set-proxy [] {
   $env.http_proxy = "http://localhost:7890"
@@ -37,12 +37,15 @@ def is-running-wsl [cmd: string] {
 }
 
 def is-running [cmd: string] {
-  let count = (ps | where name =~ $cmd | length)
-  if ($count > 0) {
-    true
-  } else {
-    false
-  }
+  let cmd_base = $cmd | str replace -r '\.exe$' ''
+  let processes = (ps)
+
+  let matching_processes = $processes | where {|proc|
+      let proc_name = $proc.name | str replace -r '\.exe$' ''
+      ($proc_name | str downcase) == ($cmd_base | str downcase)
+    }
+
+  ($matching_processes | length) > 0
 }
 
 if (is-wsl) {
@@ -61,7 +64,7 @@ def --env clash [] {
       unset-proxy
     }
   } else if (is-win) or (is-linux) {
-    if (is-running clash-verge) {
+    if ((is-running flclash) or (is-running clash-verge)) {
       set-proxy
     } else {
       unset-proxy
@@ -70,33 +73,6 @@ def --env clash [] {
 }
 
 clash
-
-# 检查并安装配置的函数
-def check_and_install_config [config_name: string configs: list<string>] {
-  let config_folder = if ($nu.os-info.name == "windows") {
-    "C:\\Users\\" + $env.USERNAME + "\\AppData\\Local\\"
-  } else {
-    $env.HOME + "/.config/"
-  }
-  for cfg in $configs {
-    let parts = ($cfg | split row "|")
-    if (($parts | length) != 2) {
-      continue
-    }
-    let name = $parts.0
-    let repo = $parts.1
-    if ($config_name == $name) and (not (($config_folder + $name) | path exists)) {
-      print ($name + " config not found. Installing...")
-      let full_repo = if ($repo =~ '://') {
-        $repo
-      } else {
-        "https://github.com/" + $repo
-      }
-      git clone $full_repo ($config_folder + $name)
-      break
-    }
-  }
-}
 
 mkdir ($nu.data-dir | path join vendor autoload)
 ls ($nu.data-dir | path join vendor autoload) | each {|it| rm $it.name }
@@ -114,7 +90,22 @@ if (which tree-sitter | is-not-empty) and ($nu.default-config-dir | path join co
 }
 open ($env.PROJECT_DIRS | path join nu_scripts modules fnm fnm.nu) | save -f ($nu.data-dir | path join vendor autoload fnm.nu)
 zoxide init nushell | save -f ($nu.data-dir | path join vendor autoload zoxide.nu)
-source ~/encrypt.nu
+
+# 从encrypt.json文件设置环境变量
+def --env load-encrypt-env [] {
+  let encrypt_file = ($env.HOME | path join "encrypt.json")
+  if ($encrypt_file | path exists) {
+    let env_vars = (open $encrypt_file)
+    for key in ($env_vars | columns) {
+      load-env {($key): ($env_vars | get $key)}
+    }
+  } else {
+    print "encrypt.json not found in user directory"
+  }
+}
+
+# 加载encrypt.json中的环境变量
+load-encrypt-env
 
 # 命令别名
 alias lg = lazygit
@@ -153,6 +144,9 @@ def wtedit [] {
 
 mkdir ($nu.data-dir | path join vendor completions)
 bob complete nushell | save -f ($nu.data-dir | path join "vendor/autoload/bob.nu")
+carapace _carapace nushell | save --force ($nu.data-dir | path join "vendor/autoload/carapace.nu")
 
-source $"($nu.cache-dir)/carapace.nu"
+# fzf 配置
+$env.FZF_DEFAULT_OPTS = "--bind=tab:down --bind=shift-tab:up --bind=ctrl-j:down --bind=ctrl-k:up --cycle"
+
 source nvim.nu

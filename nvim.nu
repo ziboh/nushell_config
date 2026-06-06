@@ -1,13 +1,40 @@
 $env.NVIM_DEFAULT_CONFIG = ""
 $env.NVIM_APPNAME = "Mini"
 
+# 检查并安装配置的函数
+def check_and_install_config [config_name: string configs: list<string>] {
+  let config_folder = if ($nu.os-info.name == "windows") {
+    "C:\\Users\\" + $env.USERNAME + "\\AppData\\Local\\"
+  } else {
+    $env.HOME + "/.config/"
+  }
+  for cfg in $configs {
+    let parts = ($cfg | split row "|")
+    if (($parts | length) != 2) {
+      continue
+    }
+    let name = $parts.0
+    let repo = $parts.1
+    if ($config_name == $name) and (not (($config_folder + $name) | path exists)) {
+      print ($name + " config not found. Installing...")
+      let full_repo = if ($repo =~ '://') {
+        $repo
+      } else {
+        "https://github.com/" + $repo
+      }
+      git clone $full_repo ($config_folder + $name)
+      break
+    }
+  }
+}
+
 def nvims [
   --cmd: string # Execute <cmd> before any config
   -c: string # Execute <cmd> after config and first file
   -l: string # Execute Lua <script> (with optional args)
   -S: string # Source <session> after loading the first file
   -s: string # Read Normal mode commands from <scriptin>
-  -u: string # Use this config file
+  -u: path # Use this config file
   -d # Diff mode
   --es # Silent (batch) mode
   --Es # Silent (batch) mode
@@ -104,7 +131,7 @@ def nvim [
   -l: string # Execute Lua <script> (with optional args)
   -S: string # Source <session> after loading the first file
   -s: string # Read Normal mode commands from <scriptin>
-  -u: string # Use this config file
+  -u: path # Use this config file
   -d # Diff mode
   --es # Silent (batch) mode
   --Es # Silent (batch) mode
