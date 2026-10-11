@@ -1,3 +1,24 @@
+def get-documents-path []: nothing -> string {
+  let raw = (^reg query 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' /v Personal | complete)
+  if $raw.exit_code != 0 {
+    # 回退：直接拼 USERPROFILE
+    return ([$env.USERPROFILE "Documents"] | path join)
+  }
+
+  let line = ($raw.stdout | lines | skip 2 | first | str trim)
+  let parts = ($line | split row -r '\s{2,}|\t+')
+  let path = ($parts | last | str trim)
+
+  # 如果值是 %USERPROFILE%\Documents 这种 REG_EXPAND_SZ，用 cmd 展开
+  if ($path | str contains "%") {
+    let expanded = (^cmd /c ($"echo ($path)" | str replace -a "/" "\\") | str trim)
+    if ($expanded | str length) > 0 {
+      return $expanded
+    }
+  }
+
+  return $path
+}
 if ($nu.os-info.name != "windows") and not ("ENV_LOADED" in $env) {
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/.cargo/bin"))
   $env.PATH = ($env.PATH | prepend ($env.HOME + "/bin"))
@@ -15,7 +36,7 @@ if ($nu.os-info.name != "windows") {
   $env.SSH_AUTH_SOCK = "/run/user/1000/ssh-agent.socket"
   $env.GP_DIR = ($env.HOME | path join .local share gp)
 } else {
-  $env.PROJECT_DIRS = 'C:\Users\zibo\Documents\projects'
+  $env.PROJECT_DIRS = (get-documents-path | path join projects)
   $env.HOME = $env.HOMEDRIVE + $env.HOMEPATH
   $env.GP_DIR = ($env.HOME | path join AppData Local gp)
   let bash_path = which bash | get path

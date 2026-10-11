@@ -42,7 +42,7 @@ def is-running [cmd: string] {
 
   let matching_processes = $processes | where {|proc|
       let proc_name = $proc.name | str replace -r '\.exe$' ''
-      ($proc_name | str downcase) == ($cmd_base | str downcase)
+      ($proc_name | str lowercase) == ($cmd_base | str lowercase)
     }
 
   ($matching_processes | length) > 0
